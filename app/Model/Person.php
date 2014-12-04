@@ -43,8 +43,9 @@ class Person extends AppModel {
         $sql = '';
         $sql .= "SELECT COUNT(*) AS `count` FROM `demo`.`person` AS `Person`";
         $this->recursive = $recursive;
+        //$results = $this->query($sql);
         $results = $this->query($sql);
-        return $results;
+        return count($results);
     }
     */
 }

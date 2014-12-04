@@ -36,17 +36,24 @@ class PersonsController extends AppController {
      */
     function paging() {
         /*
-        $this->paginate = array(
-            'limit' => 100,
-            'fields' => array(
-                'DISTINCT Person.id',
-                'Person.name',
-                'Person.address',
-                'Person.tel'
-        ));
-        */
-        $this->Person->recursive=0;
-        $this->paginate = array('Person'=>array('limit'=>100));
+          $this->paginate = array(
+          'limit' => 100,
+          'fields' => array(
+          'DISTINCT Person.id',
+          'Person.name',
+          'Person.address',
+          'Person.tel'
+          ));
+         */
+        $this->Person->unbindModel(array(
+            'hasOne' => array(
+                'Pet',
+                'Vehicle'
+            )
+                )
+        );
+        $this->Person->recursive = 0;
+        $this->paginate = array('Person' => array('limit' => 100));
         $data = $this->paginate("Person");
         $this->set("data", $data);
     }
@@ -68,6 +75,61 @@ class PersonsController extends AppController {
         );
         $data = $this->Person->find("all", $sql);
         $this->set("data", $data);
+    }
+
+    function search() {
+        // the page we will redirect to
+        $url['action'] = 'result';
+
+        // build a URL will all the search elements in it
+        // the resulting URL will be
+        // example.com/cake/posts/index/Search.keywords:mykeyword/Search.tag_id:3
+
+        foreach ($this->data as $k => $v) {
+            foreach ($v as $kk => $vv) {
+                $url[$k . '.' . $kk] = $vv;
+            }
+        }
+
+        // redirect the user to the url
+        $this->redirect($url, null, true);
+    }
+
+    function result() {
+        $title = array();
+
+        //
+        // filter by id
+        //
+        $data;
+        if (isset($this->passedArgs['Vehicles.address'])) {
+            // set the conditions
+            $address = $this->passedArgs['Vehicles.address'];
+            $conditionsSubQuery['`Person`.`address`'] = $address;
+            $db = $this->Vehicle->getDataSource();
+            $subQuery = $db->buildStatement(
+                    array(
+                'fields' => array('`Person`.`id`'),
+                'table' => $db->fullTableName($this->Vehicle),
+                'alias' => 'Person',
+                'limit' => null,
+                'offset' => null,
+                'joins' => array(),
+                'conditions' => $conditionsSubQuery,
+                'order' => null,
+                'group' => null
+                    ), $this->Vehicle
+            );
+            $subQuery = ' `Vehicle`.`person_id` IN (' . $subQuery . ') ';
+            $subQueryExpression = $db->expression($subQuery);
+            $conditions[] = $subQueryExpression;
+            $this->loadModel('Person');
+            $data = $this->Person->find('all', compact('conditions'));
+            $this->set("data", $data);
+        } else {
+            $data = null;
+            $this->set("data", $data);
+        }
     }
 
 }

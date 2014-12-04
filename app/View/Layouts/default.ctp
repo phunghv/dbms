@@ -51,7 +51,12 @@ $cakeVersion = __d('cake_dev', 'CakePHP %s', Configure::version())
                             <li><?php echo $this->Html->link('Show vehicles',array('controller'=>'vehicles/paging','action'=>'index'))?></li>
                         </ul>
                     </li>
-                    <li><?php echo $this->Html->link('Search',array('controller'=>'searchs','action'=>'index'))?></li>
+                    <li><?php echo $this->Html->link('Search',array('controller'=>'','action'=>'index'))?>
+                         <ul>
+                            <li><?php echo $this->Html->link('Search vehicle',array('controller'=>'vehicles','action'=>'search'))?> </li>
+                            <li><?php echo $this->Html->link('Search pet',array('controller'=>'pets','action'=>'search'))?> </li>
+                        </ul>
+                    </li>
                     <li><?php echo $this->Html->link('About',array('controller'=>'about','action'=>'index'))?></li>
 
                 </ul>
